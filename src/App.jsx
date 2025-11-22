@@ -4,7 +4,7 @@ import TicketCard from "./TicketCard.jsx";
 export default function App() {
   const event = {
     id: "concert-001",
-    title: "Travis Scoot Circus Maximus Tour",
+    title: "Travis Scott Circus Maximus Tour",
     date: "18 & 19 October 2025",
     venue: "JLN Stadium, New Delhi",
     price_rs: 5000,   
@@ -17,7 +17,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>Travis Scoot Circus Maximus Tour — Purchase Tickets</h1>
+        <h1>Travis Scott Circus Maximus Tour — Purchase Tickets</h1>
         <p>Secure checkout using Stripe</p>
       </header>
 
