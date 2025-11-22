@@ -16,7 +16,8 @@ if (!stripeKey) {
 const stripe = new Stripe(stripeKey, { apiVersion: "2023-08-16" });
 
 app.use(cors({ origin: "http://localhost:5173" }));
-app.use(express.json());
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+app.use(cors({ origin: FRONTEND_ORIGIN }));
 
 app.post("/create-checkout-session", async (req, res) => {
   try {
