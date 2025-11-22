@@ -3,6 +3,7 @@ import React, { useState } from "react";
 export default function TicketCard({ event }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [quantity, setQuantity] = useState(1);
 
   async function handleBuy(quantity = 1) {
     setLoading(true);
@@ -59,12 +60,21 @@ export default function TicketCard({ event }) {
         </p>
 
         <div className="actions">
-          <button disabled={loading} onClick={() => handleBuy(1)}>
-            {loading ? "Redirecting..." : "Buy 1 Ticket"}
-          </button>
+          <select
+            value={quantity}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            disabled={loading}
+            style={{ padding: "8px", borderRadius: "6px" }}
+          >
+            <option value={1}>1 Ticket</option>
+            <option value={2}>2 Tickets</option>
+            <option value={3}>3 Tickets</option>
+            <option value={4}>4 Tickets</option>
+            <option value={5}>5 Tickets</option>
+          </select>
 
-          <button disabled={loading} onClick={() => handleBuy(2)}>
-            {loading ? "Redirecting..." : "Buy 2 Tickets"}
+          <button disabled={loading} onClick={() => handleBuy(quantity)}>
+            {loading ? "Redirecting..." : `Buy ${quantity} Ticket(s)`}
           </button>
         </div>
 
