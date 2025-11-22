@@ -9,17 +9,21 @@ export default function TicketCard({ event }) {
     setError(null);
 
     try {
-      const res = await fetch("https://api-integration-assignment.onrender.com", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          price_cents: event.price_cents,
-          currency: event.currency,
-          quantity,
-          name: event.title,
-          metadata: { eventId: event.id },
-        }),
-      });
+      // FIX: Append the correct endpoint path to the base URL
+      const res = await fetch(
+        "https://api-integration-assignment.onrender.com/create-checkout-session",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            price_cents: event.price_cents,
+            currency: event.currency,
+            quantity,
+            name: event.title,
+            metadata: { eventId: event.id },
+          }),
+        }
+      );
 
       if (!res.ok) {
         const body = await res.text().catch(() => null);
