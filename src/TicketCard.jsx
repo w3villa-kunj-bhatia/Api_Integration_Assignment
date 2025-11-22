@@ -9,7 +9,7 @@ export default function TicketCard({ event }) {
     setError(null);
 
     try {
-      const res = await fetch("http://localhost:4242/create-checkout-session", {
+      const res = await fetch("https://api-integration-assignment.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
