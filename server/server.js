@@ -19,7 +19,7 @@ const stripe = new Stripe(stripeKey, { apiVersion: "2023-08-16" });
 
 // Use environment variable for deployed frontend URL, fallback to local for local dev
 // For deployment, set FRONTEND_ORIGIN to your Vercel URL (e.g., https://api-integration-assignment-peach.vercel.app)
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localFRONTEND_ORIGIN=https://api-integration-assignment-peach.vercel.apphost:5173"; 
 const allowedOrigins = FRONTEND_ORIGIN.split(",")
   .map((s) => s.trim())
   .filter(Boolean);
@@ -28,10 +28,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true);
-
-      // Allow explicitly configured origins
+      // ... this check allows your Vercel domain to call the API
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -146,3 +143,6 @@ app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
   console.log(`Allowed CORS origins: ${allowedOrigins.join(", ")}`);
 });
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:4242";
