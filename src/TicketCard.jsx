@@ -10,21 +10,20 @@ export default function TicketCard({ event }) {
     setError(null);
 
     try {
-      // FIX: Append the correct endpoint path to the base URL
-      const res = await fetch(
-        "https://api-integration-assignment.onrender.com/create-checkout-session",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            price_cents: event.price_cents,
-            currency: event.currency,
-            quantity,
-            name: event.title,
-            metadata: { eventId: event.id },
-          }),
-        }
-      );
+      // FIX: Use the local backend server URL for API calls
+      const API_URL = "http://localhost:4242/create-checkout-session";
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          price_cents: event.price_cents,
+          currency: event.currency,
+          quantity,
+          name: event.title,
+          metadata: { eventId: event.id },
+        }),
+      });
 
       if (!res.ok) {
         const body = await res.text().catch(() => null);

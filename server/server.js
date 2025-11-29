@@ -52,11 +52,9 @@ app.post("/create-checkout-session", async (req, res) => {
     } = req.body ?? {};
 
     if (!price_cents || typeof price_cents !== "number") {
-      return res
-        .status(400)
-        .json({
-          error: "price_cents (number, in smallest currency unit) required",
-        });
+      return res.status(400).json({
+        error: "price_cents (number, in smallest currency unit) required",
+      });
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -74,11 +72,11 @@ app.post("/create-checkout-session", async (req, res) => {
       mode: "payment",
       success_url: `${
         (process.env.SUCCESS_URL || "").replace(/\/$/, "") ||
-        "http://localhost:5173"
+        "http://localhost:5173" // This must be correct for local testing
       }/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${
         (process.env.CANCEL_URL || "").replace(/\/$/, "") ||
-        "http://localhost:5173"
+        "http://localhost:5173" // This must be correct for local testing
       }/cancel`,
       metadata,
     });
@@ -86,11 +84,35 @@ app.post("/create-checkout-session", async (req, res) => {
     res.json({ url: session.url });
   } catch (err) {
     console.error("Stripe error:", err);
+    res.status(500).json({
+      error: { message: (err && err.message) || "Internal Server Error" },
+    });
+  }
+});
+
+// NEW ENDPOINT: Retrieve session status for success/cancel page
+app.get("/session-status", async (req, res) => {
+  try {
+    const sessionId = req.query.session_id;
+
+    if (!sessionId) {
+      return res
+        .status(400)
+        .json({ error: "Missing session_id query parameter" });
+    }
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    res.json({
+      status: session.payment_status, // should be 'paid' on success
+      customer_email: session.customer_details?.email,
+      line_items: session.line_items?.data || [], // Note: requires expanding line items if needed, but basic data is here
+    });
+  } catch (err) {
+    console.error("Stripe error retrieving session:", err);
     res
       .status(500)
-      .json({
-        error: { message: (err && err.message) || "Internal Server Error" },
-      });
+      .json({ error: { message: "Failed to retrieve session status" } });
   }
 });
 
