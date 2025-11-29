@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+// Dynamically read the API URL (Must be set on Vercel deployment)
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:4242";
 
@@ -13,17 +14,20 @@ export default function TicketCard({ event }) {
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/create-checkout-session`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          price_cents: event.price_cents,
-          currency: event.currency,
-          quantity,
-          name: event.title,
-          metadata: { eventId: event.id },
-        }),
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/create-checkout-session`, // Uses VITE_API_BASE_URL
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            price_cents: event.price_cents,
+            currency: event.currency,
+            quantity,
+            name: event.title,
+            metadata: { eventId: event.id },
+          }),
+        }
+      );
 
       if (!res.ok) {
         const body = await res.text().catch(() => null);

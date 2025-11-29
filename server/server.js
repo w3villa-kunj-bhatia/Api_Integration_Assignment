@@ -17,9 +17,9 @@ if (!stripeKey) {
 
 const stripe = new Stripe(stripeKey, { apiVersion: "2023-08-16" });
 
-// Use environment variable for deployed frontend URL, fallback to local for local dev
-// For deployment, set FRONTEND_ORIGIN to your Vercel URL (e.g., https://api-integration-assignment-peach.vercel.app)
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localFRONTEND_ORIGIN=https://api-integration-assignment-peach.vercel.apphost:5173"; 
+// Use environment variable for deployed frontend URL, fallback to local
+// This is used for CORS control and setting Stripe redirect URLs.
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 const allowedOrigins = FRONTEND_ORIGIN.split(",")
   .map((s) => s.trim())
   .filter(Boolean);
@@ -28,12 +28,13 @@ app.use(express.json());
 app.use(
   cors({
     origin: (origin, callback) => {
-      // ... this check allows your Vercel domain to call the API
+      if (!origin) return callback(null, true);
+
+      // FIX: Check if the request origin matches the deployed Vercel domain
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      // Fallback to strict policy
       return callback(new Error(`CORS policy: origin ${origin} not allowed`));
     },
     methods: ["GET", "POST", "OPTIONS"],
@@ -62,7 +63,7 @@ app.post("/create-checkout-session", async (req, res) => {
       });
     }
 
-    // Determine the base URL for Stripe redirect (using FRONTEND_ORIGIN or SUCCESS_URL)
+    // Use FRONTEND_ORIGIN for Stripe redirect URLs
     const baseUrl = (
       process.env.SUCCESS_URL ||
       process.env.FRONTEND_ORIGIN ||
@@ -82,8 +83,8 @@ app.post("/create-checkout-session", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/cancel`,
+      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`, // Redirects to Vercel URL
+      cancel_url: `${baseUrl}/cancel`, // Redirects to Vercel URL
       metadata,
     });
 
@@ -96,6 +97,7 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
+// MISSING ENDPOINT ADDED: Retrieve session status for success page verification
 app.get("/session-status", async (req, res) => {
   try {
     const sessionId = req.query.session_id;
@@ -106,16 +108,15 @@ app.get("/session-status", async (req, res) => {
         .json({ error: "Missing session_id query parameter" });
     }
 
-    // EXPAND line_items to fetch product details for the success page
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["line_items"],
+      expand: ["line_items.data.price.product"],
     });
 
     // Extract item name from expanded line_items
     const firstLineItem = session.line_items?.data?.[0];
     const itemName =
       firstLineItem?.description ||
-      firstLineItem?.price?.product_data?.name ||
+      firstLineItem?.price?.product?.name ||
       "Ticket";
 
     res.json({
@@ -143,6 +144,3 @@ app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
   console.log(`Allowed CORS origins: ${allowedOrigins.join(", ")}`);
 });
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:4242";

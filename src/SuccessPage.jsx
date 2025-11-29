@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-// Read the base URL from the environment. Default to local if not set.
+// Dynamically read the API URL (Must be set on Vercel deployment)
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:4242";
 
@@ -21,7 +21,7 @@ export default function SuccessPage() {
 
     async function fetchSessionStatus() {
       try {
-        // Use configured API base URL
+        // Uses VITE_API_BASE_URL
         const res = await fetch(
           `${API_BASE_URL}/session-status?session_id=${sessionId}`
         );
@@ -72,7 +72,6 @@ export default function SuccessPage() {
     );
   }
 
-  // Assuming session is paid and data is available
   const item = session.line_items?.[0]?.description || "Ticket(s)";
 
   return (
