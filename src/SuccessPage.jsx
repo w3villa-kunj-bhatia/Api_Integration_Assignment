@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 
-// Assuming the backend is running locally at port 4242
-const API_BASE_URL = "http://localhost:4242";
+// Read the base URL from the environment. Default to local if not set.
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:4242";
 
 export default function SuccessPage() {
   const [session, setSession] = useState(null);
@@ -20,7 +21,7 @@ export default function SuccessPage() {
 
     async function fetchSessionStatus() {
       try {
-        // FIX: Use the absolute local backend URL for API calls
+        // Use configured API base URL
         const res = await fetch(
           `${API_BASE_URL}/session-status?session_id=${sessionId}`
         );
@@ -72,7 +73,7 @@ export default function SuccessPage() {
   }
 
   // Assuming session is paid and data is available
-  const item = session.line_items?.[0]?.description || "Ticket";
+  const item = session.line_items?.[0]?.description || "Ticket(s)";
 
   return (
     <div className="status-page success-page">
@@ -97,6 +98,10 @@ export default function SuccessPage() {
       <a href="/" className="button-link">
         Go Home
       </a>
+      <p className="footer">
+        (Note: For a real application, server-side webhooks should be used to
+        finalize the order and issue tickets.)
+      </p>
     </div>
   );
 }

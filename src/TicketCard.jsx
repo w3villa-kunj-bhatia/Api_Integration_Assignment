@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 
+// Read the base URL from the environment. Default to local if not set.
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:4242";
+
 export default function TicketCard({ event }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -10,20 +14,20 @@ export default function TicketCard({ event }) {
     setError(null);
 
     try {
-      // FIX: Use the local backend server URL for API calls
-      const API_URL = "http://localhost:4242/create-checkout-session";
-
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          price_cents: event.price_cents,
-          currency: event.currency,
-          quantity,
-          name: event.title,
-          metadata: { eventId: event.id },
-        }),
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/create-checkout-session`, // Use configured API base URL
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            price_cents: event.price_cents,
+            currency: event.currency,
+            quantity,
+            name: event.title,
+            metadata: { eventId: event.id },
+          }),
+        }
+      );
 
       if (!res.ok) {
         const body = await res.text().catch(() => null);
