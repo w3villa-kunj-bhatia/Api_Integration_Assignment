@@ -97,10 +97,6 @@ export default function SuccessPage() {
       <a href="/" className="button-link">
         Go Home
       </a>
-      <p className="footer">
-        (Note: For a real application, server-side webhooks should be used to
-        finalize the order and issue tickets.)
-      </p>
     </div>
   );
 }
